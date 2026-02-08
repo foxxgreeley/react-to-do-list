@@ -9,27 +9,27 @@ interface TodoItem {
 
 const createID = () => self.crypto.randomUUID();
 
-const defaultTodos = [
-  {
-    id: createID(),
-    text: "Learn JSX",
-    completed: false,
-  },
-  {
-    id: createID(),
-
-    text: "Master State",
-    completed: false,
-  },
-  {
-    id: createID(),
-
-    text: "Check of boxes",
-    completed: false,
-  },
-];
-
 function useTodos() {
+  const defaultTodos = [
+    {
+      id: createID(),
+      text: "Learn JSX",
+      completed: false,
+    },
+    {
+      id: createID(),
+
+      text: "Master State",
+      completed: false,
+    },
+    {
+      id: createID(),
+
+      text: "Check of boxes",
+      completed: false,
+    },
+  ];
+
   const [todos, setTodos] = useState<TodoItem[]>(() => {
     const saved = localStorage.getItem("todos");
     return saved ? JSON.parse(saved) : defaultTodos;
@@ -38,6 +38,10 @@ function useTodos() {
   useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(todos));
   }, [todos]);
+
+  const resetTodos = () => {
+    setTodos(defaultTodos);
+  };
 
   const addTodo = (text: string) => {
     if (!text) {
@@ -58,7 +62,7 @@ function useTodos() {
 
   return {
     todos,
-    setTodos,
+    resetTodos,
     addTodo,
     deleteTodo,
     completeTodo,
@@ -66,7 +70,7 @@ function useTodos() {
 }
 
 function App() {
-  const { todos, setTodos, addTodo, deleteTodo, completeTodo } = useTodos();
+  const { todos, resetTodos, addTodo, deleteTodo, completeTodo } = useTodos();
 
   return (
     <>
@@ -90,7 +94,7 @@ function App() {
           </ul>
 
           <Form addTodo={addTodo} />
-          <button onClick={() => setTodos(defaultTodos)}>Reset</button>
+          <button onClick={() => resetTodos()}>Reset</button>
         </div>
       </main>
 
@@ -136,8 +140,8 @@ function ToDoListItem({
   deleteTodo,
 }: {
   todo: TodoItem;
-  completeTodo: (id: string) => void;
-  deleteTodo: (id: string) => void;
+  completeTodo: () => void;
+  deleteTodo: () => void;
 }) {
   return (
     <>
@@ -146,13 +150,13 @@ function ToDoListItem({
           className="size-7 me-3"
           type="checkbox"
           checked={todo.completed}
-          onChange={() => completeTodo(todo.id)}
+          onChange={() => completeTodo()}
           required
         />
         <p className={`w-full ${todo.completed ? "line-through" : ""}`}>
           {todo.text}
         </p>
-        <button onClick={() => deleteTodo(todo.id)}>Delete</button>
+        <button onClick={() => deleteTodo()}>Delete</button>
       </li>
     </>
   );
