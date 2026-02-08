@@ -1,0 +1,161 @@
+import { useEffect, useState } from "react";
+import "./App.css";
+
+interface TodoItem {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+const createID = () => self.crypto.randomUUID();
+
+const defaultTodos = [
+  {
+    id: createID(),
+    text: "Learn JSX",
+    completed: false,
+  },
+  {
+    id: createID(),
+
+    text: "Master State",
+    completed: false,
+  },
+  {
+    id: createID(),
+
+    text: "Check of boxes",
+    completed: false,
+  },
+];
+
+function useTodos() {
+  const [todos, setTodos] = useState<TodoItem[]>(() => {
+    const saved = localStorage.getItem("todos");
+    return saved ? JSON.parse(saved) : defaultTodos;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
+
+  const addTodo = (text: string) => {
+    if (!text) {
+      return;
+    }
+    setTodos((todos) => [...todos, { id: createID(), text, completed: false }]);
+  };
+
+  const deleteTodo = (id: string) =>
+    setTodos((todos) => todos.filter((todo) => todo.id !== id));
+
+  const completeTodo = (id: string) =>
+    setTodos((todos: TodoItem[]) =>
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
+      ),
+    );
+
+  return {
+    todos,
+    setTodos,
+    addTodo,
+    deleteTodo,
+    completeTodo,
+  };
+}
+
+function App() {
+  const { todos, setTodos, addTodo, deleteTodo, completeTodo } = useTodos();
+
+  return (
+    <>
+      <main className="bg-neutral-700 px-10 py-8 w-full max-w-xl mx-auto geist">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 text-center">
+            <h1>Simple Todo List</h1>
+            <p className="text-xl font-light">
+              Todos Left: {todos.filter((todo) => !todo.completed).length}
+            </p>
+          </div>
+          <ul className="flex flex-col gap-3 my-3">
+            {todos.map((todo) => (
+              <ToDoListItem
+                key={todo.id}
+                todo={todo}
+                completeTodo={() => completeTodo(todo.id)}
+                deleteTodo={() => deleteTodo(todo.id)}
+              />
+            ))}
+          </ul>
+
+          <Form addTodo={addTodo} />
+          <button onClick={() => setTodos(defaultTodos)}>Reset</button>
+        </div>
+      </main>
+
+      <footer className="text-center font-extralight my-4">
+        Made by Foxx Greeley
+      </footer>
+    </>
+  );
+}
+
+function Form({ addTodo }: { addTodo: (text: string) => void }) {
+  const [newTodoText, setNewTodoText] = useState("");
+
+  return (
+    <form
+      method="post"
+      onSubmit={(e) => {
+        e.preventDefault();
+        addTodo(newTodoText);
+        setNewTodoText("");
+      }}
+    >
+      <div className="flex justify-between">
+        <input
+          className="bg-white text-black flex-1 p-3"
+          type="text"
+          placeholder="Take out the trash"
+          required
+          onChange={(e) => setNewTodoText(e.target.value)}
+          value={newTodoText}
+        />
+      </div>
+      <button className="w-full mt-3" type="submit">
+        Submit
+      </button>
+    </form>
+  );
+}
+
+function ToDoListItem({
+  todo,
+  completeTodo,
+  deleteTodo,
+}: {
+  todo: TodoItem;
+  completeTodo: (id: string) => void;
+  deleteTodo: (id: string) => void;
+}) {
+  return (
+    <>
+      <li className="flex gap-2 items-center justify-between w-full">
+        <input
+          className="size-7 me-3"
+          type="checkbox"
+          checked={todo.completed}
+          onChange={() => completeTodo(todo.id)}
+          required
+        />
+        <p className={`w-full ${todo.completed ? "line-through" : ""}`}>
+          {todo.text}
+        </p>
+        <button onClick={() => deleteTodo(todo.id)}>Delete</button>
+      </li>
+    </>
+  );
+}
+
+export default App;
