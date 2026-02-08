@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import { X } from "lucide-react";
 
 interface TodoItem {
   id: string;
@@ -74,15 +75,15 @@ function App() {
 
   return (
     <>
-      <main className="bg-neutral-700 px-10 py-8 w-full max-w-xl mx-auto geist">
+      <main className="bg-neutral-700 px-10 py-8 w-full max-w-xl mx-auto geist antialiased">
         <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-3 text-center">
-            <h1>Simple Todo List</h1>
-            <p className="text-xl font-light">
+          <div className="flex flex-col text-center">
+            <h1 className="text-2xl font-semibold">Simple Todo List</h1>
+            <p className="text-lg font-light">
               Todos Left: {todos.filter((todo) => !todo.completed).length}
             </p>
           </div>
-          <ul className="flex flex-col gap-3 my-3">
+          <ul className="flex flex-col gap-4 my-3">
             {todos.map((todo) => (
               <ToDoListItem
                 key={todo.id}
@@ -94,7 +95,12 @@ function App() {
           </ul>
 
           <Form addTodo={addTodo} />
-          <button onClick={() => resetTodos()}>Reset</button>
+          <button
+            className="w-full hover:cursor-pointer bg-neutral-800 px-2 py-1 rounded-md"
+            onClick={() => resetTodos()}
+          >
+            Reset
+          </button>
         </div>
       </main>
 
@@ -121,13 +127,16 @@ function Form({ addTodo }: { addTodo: (text: string) => void }) {
         <input
           className="bg-white text-black flex-1 p-3"
           type="text"
-          placeholder="Take out the trash"
+          placeholder="Take out the trash..."
           required
           onChange={(e) => setNewTodoText(e.target.value)}
           value={newTodoText}
         />
       </div>
-      <button className="w-full mt-3" type="submit">
+      <button
+        className="w-full mt-3 hover:cursor-pointer bg-neutral-800 px-2 py-1 rounded-md"
+        type="submit"
+      >
         Submit
       </button>
     </form>
@@ -146,17 +155,22 @@ function ToDoListItem({
   return (
     <>
       <li className="flex gap-2 items-center justify-between w-full">
+        <p className={`w-full ${todo.completed ? "line-through" : ""}`}>
+          {todo.text}
+        </p>
         <input
-          className="size-7 me-3"
+          className="size-6"
           type="checkbox"
           checked={todo.completed}
           onChange={() => completeTodo()}
           required
         />
-        <p className={`w-full ${todo.completed ? "line-through" : ""}`}>
-          {todo.text}
-        </p>
-        <button onClick={() => deleteTodo()}>Delete</button>
+        <button
+          className="text-white hover:text-red-500 hover:cursor-pointer"
+          onClick={() => deleteTodo()}
+        >
+          <X className="size-6" />
+        </button>
       </li>
     </>
   );
